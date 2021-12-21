@@ -1,7 +1,7 @@
 from numpy.random import randint
 from numpy.random import rand, choice
 from object import *
-from data_transform import *
+# from data_transform import *
 
 np.random.seed(10)
 
@@ -55,11 +55,10 @@ and randomly add new points and return new population
 '''
 
 
-def mutation(indiv, r_mut):
+def mutation(indiv, r_mut, S):
     for i in range(len(indiv)):
         # check for a mutation
         if rand() < r_mut:
-            # flip the bit
             indiv.remove(indiv[i])
             indiv.append(choice(S))
 
@@ -68,13 +67,14 @@ genetic_algorithm returns best representative
 population along with their scores
 '''
 
-def genetic_algorithm(objective, n_obj, n_iter, n_pop, r_cross, r_mut):
+def genetic_algorithm(objective, n_obj, n_iter, n_pop, r_cross, r_mut, S):
     # initial population of random bitstring
     pop = [choice(S, n_obj).tolist() for _ in range(n_pop)]
     
     # keep track of best solution
     best, best_eval = 0, objective(pop[0])
-    
+    check_convg=np.zeros((200,1))
+
     # enumerate generations
     for gen in range(n_iter):
         
@@ -85,9 +85,15 @@ def genetic_algorithm(objective, n_obj, n_iter, n_pop, r_cross, r_mut):
         for i in range(n_pop):
             if scores[i] < best_eval:
                 best, best_eval = pop[i], scores[i]
+        
+        check_convg[gen%200] = best_eval
 
         print(">%d, new best score = %.3f" % (gen, best_eval))
-        
+        res = all(ele == check_convg[0] for ele in check_convg)
+        if res:
+            print("Converged!")
+            break
+
         # select parents
         selected = [selection(pop, scores) for _ in range(n_pop)]
         # create the next generation
@@ -99,7 +105,7 @@ def genetic_algorithm(objective, n_obj, n_iter, n_pop, r_cross, r_mut):
             # crossover and mutation
             for c in crossover(p1, p2, r_cross):
                 # mutation
-                mutation(c, r_mut)
+                mutation(c, r_mut, S)
                 # store for next generation
                 children.append(c)
         

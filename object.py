@@ -1,5 +1,22 @@
 import numpy as np
-import math
+
+ks = ["solve_for", "placement", "strike_shift", "issue_date", "ac_type", "ac_freq",
+      "ac_from", "ac_coupon_type", "pc_type", "pc_barrier", "pc_freq", "ye_type", "ye_barrier", "ye_freq", "payoff_type"]
+
+# dict to store actual probablity
+# of true distribution
+dict = {}
+for k in ks:
+    dict[k] = {}
+    dict[k][""] = 1
+
+# reads from the input file and
+# fills dict with the prob. values
+for line in open('data/std_ac.txt', 'r').readlines():
+    x = line.strip().split(',')
+    for i in range(1, len(x)-1, 2):
+        dict[x[0]][x[i]] = float(x[i+1])
+
 
 '''
 Object class contains the features that define prob.
@@ -10,53 +27,17 @@ distribution of a particular dataset
 class Object:
 
     def __init__(self, input):
-        [solve_for, placement, strike_shift, issue_date, ac_type, ac_freq,
-            ac_from, ac_coupon_type, payoff_type] = input.split(',')
-
-        self.solve_for = solve_for
-        self.placement = placement
-        self.strike_shift = strike_shift
-        self.issue_date = issue_date
-        self.ac_type = ac_type
-        self.ac_freq = ac_freq
-        self.ac_from = ac_from
-        self.ac_coupon_type = ac_coupon_type
-        self.payoff_type = payoff_type
+        self.features = input.split(',')
+        [self.solve_for, self.placement, self.strike_shift, self.issue_date, self.ac_type, self.ac_freq,
+            self.ac_from, self.ac_coupon_type, self.pc_type, self.pc_barrier, self.pc_freq, self.ye_type, self.ye_barrier, self.ye_freq, self.payoff_type] = self.features.copy()
         self.str = input
 
     # defines the true distribution of the dataset
     # needs to be hardcoded for diff. dataset
     def q(self):
         prob = 1
-        if self.strike_shift == "Fwd":
-            prob *= 0.2
-        else:
-            prob *= 0.8
-
-        if self.issue_date == "T+5" or self.issue_date == "T+10":
-            prob *= 0.25
-        else:
-            prob *= 0.5
-
-        if self.ac_freq == "Daily" or self.ac_freq == "Monthly":
-            prob *= 0.5
-        else:
-            prob *= 0
-
-        if self.ac_from[-1] == '1':
-            prob *= 0.8
-        else:
-            prob *= 0.2
-
-        if self.ac_coupon_type == "Flat":
-            prob *= 0.8
-        else:
-            prob *= 0.2
-
-        if self.payoff_type == "European":
-            prob *= 0.8
-        else:
-            prob *= (0.2/3)
+        for i, k in enumerate(ks):
+            prob *= dict[k][self.features[i]]
         return prob+1e-12
 
 
@@ -69,14 +50,12 @@ returns a dict prob
 
 def p(S):
     prob = {}
+    sz = len(S)
     for s in S:
         if s.str not in prob.keys():
-            prob[s.str] = 1
+            prob[s.str] = 1/sz
         else:
-            prob[s.str] += 1
-
-    for s in prob.keys():
-        prob[s] /= len(S)
+            prob[s.str] += 1/sz
 
     return prob
 
@@ -89,4 +68,4 @@ def KL_Divergence(S):
     for s in prob.keys():
         div += prob[s] * np.log(prob[s] / Object(s).q())
 
-    return div
+    return div*div
