@@ -11,6 +11,7 @@ of the probablity distribution of the set S
 '''
 
 def objective(S):
+    # return mse(S)
     return KL_Divergence(S)
 
 '''
@@ -81,14 +82,14 @@ def genetic_algorithm(objective, n_obj, n_iter, n_pop, r_cross, r_mut, S):
         # evaluate all candidates in the population
         scores = [objective(c) for c in pop]
         # check for new best solution
-        
+        # print(scores)
         for i in range(n_pop):
             if scores[i] < best_eval:
                 best, best_eval = pop[i], scores[i]
         
         check_convg[gen%200] = best_eval
 
-        print(">%d, new best score = %.3f" % (gen, best_eval))
+        print(">%d, new best score = %.12f" % (gen, best_eval))
         res = all(ele == check_convg[0] for ele in check_convg)
         if res:
             print("Converged!")

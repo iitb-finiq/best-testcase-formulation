@@ -1,5 +1,10 @@
 import numpy as np
+from read_file import *
 
+# Normalizing constant
+C = 1
+
+# feature types
 ks = ["solve_for", "placement", "strike_shift", "issue_date", "ac_type", "ac_freq",
       "ac_from", "ac_coupon_type", "pc_type", "pc_barrier", "pc_freq", "ye_type", "ye_barrier", "ye_freq", "payoff_type"]
 
@@ -12,7 +17,8 @@ for k in ks:
 
 # reads from the input file and
 # fills dict with the prob. values
-for line in open('data/std_ac.txt', 'r').readlines():
+prob_file = input("Enter Probabilty File Name: ")
+for line in open('data/'+str(prob_file), 'r').readlines():
     x = line.strip().split(',')
     for i in range(1, len(x)-1, 2):
         dict[x[0]][x[i]] = float(x[i+1])
@@ -38,7 +44,7 @@ class Object:
         prob = 1
         for i, k in enumerate(ks):
             prob *= dict[k][self.features[i]]
-        return prob+1e-12
+        return (prob+1e-12) / C
 
 
 '''
@@ -60,7 +66,12 @@ def p(S):
     return prob
 
 
-# calculates KL Divergence of a set of objects S
+''' 
+calculates KL Divergence 
+of a set of objects S
+'''
+
+
 def KL_Divergence(S):
     prob = p(S)
     div = 0
@@ -68,4 +79,22 @@ def KL_Divergence(S):
     for s in prob.keys():
         div += prob[s] * np.log(prob[s] / Object(s).q())
 
-    return div*div
+    return div * div
+
+
+'''
+calculates the normalizing constant
+which is the sum of all probability
+'''
+
+
+def Normalize():
+    e1 = 0
+    for st in st_list:
+        s = Object(st)
+        e1 += s.q()
+
+    return e1
+
+
+C = Normalize()

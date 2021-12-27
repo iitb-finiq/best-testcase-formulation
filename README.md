@@ -11,26 +11,27 @@ Initially, we began with a randomly selected set of testcases and applied geneti
 ## File System
 - `genetic_algorithm.py`: this file has the genetic algorithm which finds the optimal best testcases to represent the entire dataset. The objective function used by the algorithm is the KL divergence between the model distribution and the formulated distribution.
 
-- `object.py`: contains the class `Object` corresponding to the features and the model distribution of the **Standard Autocall** dataset. KL Divergence is also defined along with the class in this file.
+- `object.py`: contains the class `Object` corresponding to the features and the model distribution of the input product type. KL Divergence is also defined along with the class in this file.
 
-- `data_transform.py`: used to read the complete dataset (from excel) and transform into the input format for the object. The inputs are then coverted into the `Object` class and stored in the list `S`.
+- `read_file.py`: used to read the complete dataset (from excel) and transform into the input format for the object, which are stored in the list `st_list`.
 
 - `plot.py`: is used to set parameters for calling the genetic algorithm. It also plots the variation of the KL divergence with respect to the basket size of best population.
 
 ## Running the Code
-To run & test the code, you just need to run `plot.py`, it computes the best testcases for different population size and plots a variation of the KL Divergence with respect to the basket size. These parameters can be controlled to tune algorithm and produce better results:
+To run & test the code, you just need to run `plot.py`, it computes the best testcases for different population size and plots a variation of the KL Divergence with respect to the basket size. The following are the inputs that the user is prompted while running this file.
 
+- `input_file`: defined based on product type (ex: Standard AutoCall, Fixed Coupoun AC)
+- `prob_file`: takes in input of the file that has the ideal distribution (`q(x)`)
 - `n_iter`: define the total iterations
-- `n_obj`: define the basket size
 - `n_pop`: define the population size
 - `r_cross`: crossover rate
-- `r_mut`: mutation rate
 
-## Usage 
-To use the code for generating best testcases samples, following things need to be changed:
+The last 3 parameters are optional and one can press Enter to use the default values.
 
-- `Object` class: Modify the class to encode features corresponding to the prodcedure type (Ex: new features need to be added for Fixed Couppon AC). 
-- Model distribution `q(x)` should have different probability corresponding to new features.
+## Results
+The code was run for the Standard Autocall product and the basket size was varied over from 10 to 250. The KL-Divergence value covereged to 0 with increasing bucket size. The results are summarized in the plot here:
+
+![KL-Divergence Variation](complete_divergence.png)
 
 ## Reference
 - Genetic Algorithm: https://en.wikipedia.org/wiki/Genetic_algorithm 
